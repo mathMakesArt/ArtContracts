@@ -401,22 +401,6 @@ class FA2_core(sp.Contract):
             self.update_initial_storage(
                 total_supply = self.config.my_map(tkey = sp.TNat, tvalue = sp.TNat),
             )
-        
-    ## Functions facilitating updates to lazily-stored entrypoints
-    """
-    @sp.entry_point(lazify = False)
-    def update_ep_transfer(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("transfer", ep)
-    @sp.entry_point(lazify = False)
-    def update_ep_balance_of(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("balance_of", ep)
-    @sp.entry_point(lazify = False)
-    def update_ep_update_operators(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("update_operators", ep)
-    """
 
     @sp.entry_point(lazify = False)
     def transfer(self, params):
@@ -543,14 +527,6 @@ class FA2_core(sp.Contract):
 class FA2_administrator(FA2_core):
     def is_administrator(self, sender):
         return sender == self.data.administrator
-
-    ## Function facilitating updates to lazily-stored entrypoint
-    """
-    @sp.entry_point(lazify = False)
-    def update_ep_set_administrator(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("set_administrator", ep)
-    """
         
     @sp.entry_point(lazify = False)
     def set_administrator(self, params):
@@ -561,44 +537,18 @@ class FA2_pause(FA2_core):
     def is_paused(self):
         return self.data.paused
 
-    ## Function facilitating updates to lazily-stored entrypoint
-    """
-    @sp.entry_point(lazify = False)
-    def update_ep_set_pause(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("set_pause", ep)
-    """
-
     @sp.entry_point(lazify = False)
     def set_pause(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         self.data.paused = params
 
 class FA2_change_metadata(FA2_core):
-    
-    ## Function facilitating updates to lazily-stored entrypoint
-    """
-    @sp.entry_point(lazify = False)
-    def update_ep_set_metadata(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("set_metadata", ep)
-    """
-
     @sp.entry_point(lazify = False)
     def set_metadata(self, k, v):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         self.data.metadata[k] = v
 
 class FA2_mint(FA2_core):
-    
-    ## Function facilitating updates to lazily-stored entrypoint
-    """
-    @sp.entry_point(lazify = False)
-    def update_ep_mint(self, ep):
-        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
-        sp.set_entry_point("mint", ep)
-    """
-
     @sp.entry_point(lazify = False)
     def mint(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
