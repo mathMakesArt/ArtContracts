@@ -43,7 +43,7 @@ class FA2_config:
                  readable                           = True,
                  force_layouts                      = True,
                  support_operator                   = True,
-                 assume_consecutive_token_ids       = False,
+                 assume_consecutive_token_ids       = True,
                  store_total_supply                 = True,
                  lazy_entry_points                  = True,
                  allow_self_transfer                = True,
@@ -331,7 +331,6 @@ class Token_id_set:
             return sp.set(t = token_id_type)
     def add(self, metaset, v):
         if self.config.assume_consecutive_token_ids:
-            sp.verify(metaset == v, message = "Token-IDs should be consecutive")
             metaset.set(sp.max(metaset, v + 1))
         else:
             metaset.add(v)
@@ -1159,8 +1158,8 @@ if "templates" not in __name__:
                  is_default = not sp.in_browser)
         add_test(FA2_config(debug_mode = True, support_operator = False),
                  is_default = not sp.in_browser)
-        ##add_test(FA2_config(assume_consecutive_token_ids = False)
-        ##         , is_default = not sp.in_browser)
+        add_test(FA2_config(assume_consecutive_token_ids = True)
+                 , is_default = not sp.in_browser)
         add_test(FA2_config(store_total_supply = False)
                  , is_default = not sp.in_browser)
         ##add_test(FA2_config(add_mutez_transfer = True), is_default = not sp.in_browser)
