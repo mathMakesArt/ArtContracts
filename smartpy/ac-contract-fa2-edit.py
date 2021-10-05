@@ -7,6 +7,7 @@
 ### Derived works may implement this code, but you are not permitted to sell this software itself (e.g. you may not charge money for mere access to this software).
 ## VERSION INFORMATION
 ### This file comes from version 1.4, finalized on 2021/07/21
+### This file was LAST EDITED ON 2021/10/05
 ## AUTHOR INFORMATION:
 ### GitHub:           @MathMakesArt
 ### Twitter:          @MathMakesArt
@@ -37,7 +38,7 @@ import smartpy as sp
 class FA2_config:
     def __init__(self,
                  debug_mode                         = False,
-                 single_asset                       = True,
+                 single_asset                       = False,
                  non_fungible                       = False,
                  add_mutez_transfer                 = True,
                  readable                           = True,
@@ -116,7 +117,7 @@ class FA2_config:
         # Authorize call of `transfer` entry_point from self
         
         self.enable_onchain_data = enable_onchain_data
-        # QUARTZ: Enable the variable in storage for on-chain data (big_map of strings to bytes)
+        # ARTCONTRACTS: Enable the variable in storage for on-chain data (big_map of strings to bytes)
         
         name = "FA2"
         if debug_mode:
@@ -390,7 +391,6 @@ class FA2_core(sp.Contract):
         self.init(
             ledger = self.config.my_map(tvalue = Ledger_value.get_type()),
             token_metadata = self.config.my_map(tkey = sp.TNat, tvalue = self.token_meta_data.get_type()),
-            total_supply = self.config.my_map(tkey = sp.TNat, tvalue = sp.TNat),
             operators = self.operator_set.make(),
             all_tokens = self.token_id_set.empty(),
             metadata = metadata,
@@ -398,8 +398,11 @@ class FA2_core(sp.Contract):
             onchain_data_types = self.config.my_map(tkey=sp.TString, tvalue=sp.TString),
             **extra_storage
         )
+        if self.config.store_total_supply:
+            self.update_initial_storage(
+                total_supply = self.config.my_map(tkey = sp.TNat, tvalue = sp.TNat),
+            )
         
-    
     ## Functions facilitating updates to lazily-stored entrypoints
     @sp.entry_point(lazify = False)
     def update_ep_transfer(self, ep):
@@ -606,13 +609,15 @@ class FA2_mint(FA2_core):
         sp.else:
             self.data.ledger[user] = Ledger_value.make(params.amount)
         sp.if self.data.token_metadata.contains(params.token_id):
-            pass
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
         sp.else:
             self.data.token_metadata[params.token_id] = sp.record(
                 token_id    = params.token_id,
                 token_info  = params.metadata
             )
-            self.data.total_supply[params.token_id] = params.amount
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -1162,7 +1167,7 @@ def global_parameter(env_var, default):
 def environment_config():
     return FA2_config(
         debug_mode = global_parameter("debug_mode", False),
-        single_asset = global_parameter("single_asset", True),
+        single_asset = global_parameter("single_asset", False),
         non_fungible = global_parameter("non_fungible", False),
         add_mutez_transfer = global_parameter("add_mutez_transfer", True),
         readable = global_parameter("readable", True),
@@ -1199,8 +1204,8 @@ if "templates" not in __name__:
         ##add_test(FA2_config(lazy_entry_points = True), is_default = not sp.in_browser)
 
     scenario2 = sp.test_scenario()
-    scenario2.h1("QTEST 1")
+    scenario2.h1("ARTCONTRACTS TEMPLATE v1.4.1")
     scenario2.table_of_contents()
-    c2 = FA2(config = environment_config(), metadata = sp.utils.metadata_of_url("https://mathmakes.art/quartz/1/metadata.json"), admin = sp.address("tz1YyMMPwY4XLbphHBZ8aBFdGKcDiqwEV5WH"))
+    c2 = FA2(config = environment_config(), metadata = sp.utils.metadata_of_url("https://mathmakes.art/placeholder/path/to/metadata.json"), admin = sp.address("tz1gsrd3CfZv4BfPnYKq5pKpHGFVdtGCgd71"))
     sp.add_compilation_target("FA2_comp", c2)
     scenario2 += c2
