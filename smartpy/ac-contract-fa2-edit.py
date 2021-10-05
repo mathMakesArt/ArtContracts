@@ -43,7 +43,7 @@ class FA2_config:
                  readable                           = True,
                  force_layouts                      = True,
                  support_operator                   = True,
-                 assume_consecutive_token_ids       = True,
+                 assume_consecutive_token_ids       = False,
                  store_total_supply                 = True,
                  lazy_entry_points                  = True,
                  allow_self_transfer                = True,
@@ -611,22 +611,26 @@ class FA2_mint(FA2_core):
                 ~ self.token_id_set.contains(self.data.all_tokens, params.token_id),
                 message = "NFT-asset: cannot mint twice same token"
             )
-        user = self.ledger_key.make(params.address, params.token_id)
-        self.token_id_set.add(self.data.all_tokens, params.token_id)
-        sp.if self.data.ledger.contains(user):
-            self.data.ledger[user].balance += params.amount
-        sp.else:
-            self.data.ledger[user] = Ledger_value.make(params.amount)
+        # Check if the token ID already exists
         sp.if self.data.token_metadata.contains(params.token_id):
             if self.config.store_total_supply:
-                self.data.total_supply[params.token_id] = params.amount
+                self.data.total_supply[params.token_id] += params.amount
         sp.else:
+            self.token_id_set.add(self.data.all_tokens, params.token_id)
+
             self.data.token_metadata[params.token_id] = sp.record(
                 token_id    = params.token_id,
                 token_info  = params.metadata
             )
             if self.config.store_total_supply:
                 self.data.total_supply[params.token_id] = params.amount
+
+        user = self.ledger_key.make(params.address, params.token_id)
+        sp.if self.data.ledger.contains(user):
+            self.data.ledger[user].balance += params.amount
+        sp.else:
+            self.data.ledger[user] = Ledger_value.make(params.amount)
+
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -1182,7 +1186,7 @@ def environment_config():
         readable = global_parameter("readable", True),
         force_layouts = global_parameter("force_layouts", True),
         support_operator = global_parameter("support_operator", True),
-        assume_consecutive_token_ids = global_parameter("assume_consecutive_token_ids", True),
+        assume_consecutive_token_ids = global_parameter("assume_consecutive_token_ids", False),
         store_total_supply = global_parameter("store_total_supply", True),
         lazy_entry_points = global_parameter("lazy_entry_points", True),
         allow_self_transfer = global_parameter("allow_self_transfer", True),
@@ -1205,8 +1209,8 @@ if "templates" not in __name__:
                  is_default = not sp.in_browser)
         add_test(FA2_config(debug_mode = True, support_operator = False),
                  is_default = not sp.in_browser)
-        add_test(FA2_config(assume_consecutive_token_ids = False)
-                 , is_default = not sp.in_browser)
+        ##add_test(FA2_config(assume_consecutive_token_ids = False)
+        ##         , is_default = not sp.in_browser)
         add_test(FA2_config(store_total_supply = False)
                  , is_default = not sp.in_browser)
         ##add_test(FA2_config(add_mutez_transfer = True), is_default = not sp.in_browser)
@@ -1215,6 +1219,6 @@ if "templates" not in __name__:
     scenario2 = sp.test_scenario()
     scenario2.h1("ARTCONTRACTS TEMPLATE v1.4.1")
     scenario2.table_of_contents()
-    c2 = FA2(config = environment_config(), metadata = sp.utils.metadata_of_url("https://mathmakes.art/placeholder/path/to/metadata.json"), admin = sp.address("tz1gsrd3CfZv4BfPnYKq5pKpHGFVdtGCgd71"))
+    c2 = FA2(config = environment_config(), metadata = sp.utils.metadata_of_url("https://mathmakes.art/MATH/metadata.json"), admin = sp.address("tz1gsrd3CfZv4BfPnYKq5pKpHGFVdtGCgd71"))
     sp.add_compilation_target("FA2_comp", c2)
     scenario2 += c2
