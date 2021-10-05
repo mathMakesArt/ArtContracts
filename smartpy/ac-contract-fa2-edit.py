@@ -7,7 +7,6 @@
 ### Derived works may implement this code, but you are not permitted to sell this software itself (e.g. you may not charge money for mere access to this software).
 ## VERSION INFORMATION
 ### This file comes from version 1.4, finalized on 2021/07/21
-### This file was LAST EDITED ON 2021/10/05
 ## AUTHOR INFORMATION:
 ### GitHub:           @MathMakesArt
 ### Twitter:          @MathMakesArt
@@ -404,6 +403,7 @@ class FA2_core(sp.Contract):
             )
         
     ## Functions facilitating updates to lazily-stored entrypoints
+    """
     @sp.entry_point(lazify = False)
     def update_ep_transfer(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
@@ -416,8 +416,9 @@ class FA2_core(sp.Contract):
     def update_ep_update_operators(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         sp.set_entry_point("update_operators", ep)
+    """
 
-    @sp.entry_point(lazify = True)
+    @sp.entry_point(lazify = False)
     def transfer(self, params):
         sp.verify( ~self.is_paused(), message = self.error_message.paused() )
         sp.set_type(params, self.batch_transfer.get_type())
@@ -459,7 +460,7 @@ class FA2_core(sp.Contract):
                 sp.else:
                     pass
 
-    @sp.entry_point(lazify = True)
+    @sp.entry_point(lazify = False)
     def balance_of(self, params):
         # paused may mean that balances are meaningless:
         sp.verify( ~self.is_paused(), message = self.error_message.paused())
@@ -499,7 +500,7 @@ class FA2_core(sp.Contract):
         sp.result(self.data.ledger[user].balance)
 
 
-    @sp.entry_point(lazify = True)
+    @sp.entry_point(lazify = False)
     def update_operators(self, params):
         sp.set_type(params, sp.TList(
             sp.TVariant(
@@ -544,12 +545,14 @@ class FA2_administrator(FA2_core):
         return sender == self.data.administrator
 
     ## Function facilitating updates to lazily-stored entrypoint
+    """
     @sp.entry_point(lazify = False)
     def update_ep_set_administrator(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         sp.set_entry_point("set_administrator", ep)
+    """
         
-    @sp.entry_point(lazify = True)
+    @sp.entry_point(lazify = False)
     def set_administrator(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         self.data.administrator = params
@@ -559,12 +562,14 @@ class FA2_pause(FA2_core):
         return self.data.paused
 
     ## Function facilitating updates to lazily-stored entrypoint
+    """
     @sp.entry_point(lazify = False)
     def update_ep_set_pause(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         sp.set_entry_point("set_pause", ep)
-        
-    @sp.entry_point(lazify = True)
+    """
+
+    @sp.entry_point(lazify = False)
     def set_pause(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         self.data.paused = params
@@ -572,12 +577,14 @@ class FA2_pause(FA2_core):
 class FA2_change_metadata(FA2_core):
     
     ## Function facilitating updates to lazily-stored entrypoint
+    """
     @sp.entry_point(lazify = False)
     def update_ep_set_metadata(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         sp.set_entry_point("set_metadata", ep)
-    
-    @sp.entry_point(lazify = True)
+    """
+
+    @sp.entry_point(lazify = False)
     def set_metadata(self, k, v):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         self.data.metadata[k] = v
@@ -585,12 +592,14 @@ class FA2_change_metadata(FA2_core):
 class FA2_mint(FA2_core):
     
     ## Function facilitating updates to lazily-stored entrypoint
+    """
     @sp.entry_point(lazify = False)
     def update_ep_mint(self, ep):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         sp.set_entry_point("mint", ep)
-    
-    @sp.entry_point(lazify = True)
+    """
+
+    @sp.entry_point(lazify = False)
     def mint(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         # We don't check for pauseness because we're the admin.
