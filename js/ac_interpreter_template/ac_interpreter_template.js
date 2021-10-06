@@ -6,7 +6,8 @@
 //###   If a derived work contains any sort of licensing information, you must include an additional copy of this text within the license file of your software.
 //### Derived works may implement this code, but you are not permitted to sell this software itself (e.g. you may not charge money for mere access to this software).
 //## VERSION INFORMATION
-//### This file comes from version 1.4, finalized on 2021/07/21
+//### This file comes from version 1.4.5, finalized on 2021/10/05
+//### The contents of this file (excluding comments) were last edited on 2021/07/21
 //## AUTHOR INFORMATION:
 //### GitHub:           @MathMakesArt
 //### Twitter:          @MathMakesArt
